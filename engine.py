@@ -4,8 +4,8 @@ import player
 class Engine(object):
 
   def __init__(self):
-    self.player = player.Player()
     self.geography = geography.Geography()
+    self.player = player.Player()
     self.command_loop()
 
   def command_loop(self):

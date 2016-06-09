@@ -48,3 +48,5 @@ class Room(object):
     moods = ['angry', 'sad', 'happy', 'disappointed', 'depressed']
     nouns = ['bear', 'lion', 'boy', 'girl', 'man', 'woman']
     return("There is a %s here that is very %s" % (random.choice(nouns), random.choice(moods)))
+
+
