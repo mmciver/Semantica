@@ -1,11 +1,10 @@
 from sys import exit
-import geography
-import player
+import engine
 
 class Hardway(object):
 
   def __init__(self):
-    #self.player = player.Player()
-    self.geography = geography.Geography()
+    print("Starting engine...")
+    start = engine.Engine()
 
 game = Hardway()

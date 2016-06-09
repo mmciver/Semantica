@@ -9,7 +9,7 @@ class Room(object):
     self.walls = self.get_walls()
 
   def get_description(self):
-    
+    return "<generic room description>"
 
   def get_exits(self):
     possible = [round(random.random()), round(random.random()), round(random.random()), round(random.random())]
@@ -30,14 +30,18 @@ class Room(object):
         'E': 0,
         'W': 0
         }
-    if self.exits['N'] == 0
+    if self.exits['N'] == 0:
       walls['N'] = 1
-    if self.exits['S'] == 0
+
+    if self.exits['S'] == 0:
       walls['S'] = 1
-    if self.exits['E'] == 0
+
+    if self.exits['E'] == 0:
       walls['E'] = 1
-    if self.exits['W'] == 0
+
+    if self.exits['W'] == 0:
       walls['W'] = 1
+
     return walls
 
   def get_creature(self):
