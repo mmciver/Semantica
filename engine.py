@@ -4,10 +4,9 @@ import player
 class Engine(object):
 
   def __init__(self):
-    self.player = player.Player()
+    #self.player = player.Player()
     self.map_matrix = geography.Geography()
-    self.current_room = self.map_matrix.geo['00000000']
-    self.commands = self.build_command_list()
+    self.current_room = self.map_matrix.geo[95050]
     self.command_loop()
 
   def command_loop(self):
@@ -15,74 +14,63 @@ class Engine(object):
     while command != "quit":
       print(self.current_room.display())
       command = input("\n> ").lower()
-      self.process_command()
+      self.process_command(command)
       #self.take_action(command)
     exit()
 
-  def take_action(self, action):
-    if action in ['n', 's', 'e', 'w', 'north', 'south', 'east', 'west']:
-      self.move(action)
+  def process_command(self, command):
+    if command in ['n', 's', 'e', 'w', 'north', 'south', 'east', 'west']:
+      if command == 'n':
+        command = 'north'
+      elif command == 'e':
+        command = 'east'
+      elif command == 's':
+        command = 'south'
+      elif command == 'w':
+        command = 'west'
+      self.map_matrix.move(command)
+      self.current_room = self.map_matrix.get_current_room()
 
-    elif action == 'search':
+    elif command == 'search':
       pass
 
-    elif action in ['i', 'inv', 'inventory']:
+    elif command in ['i', 'inv', 'inventory']:
       print("You currently have these items:")
       for i in self.player.inventory.keys():
         print(i)
 
-    elif action == 'stats':
+    elif command == 'stats':
       self.player.print_stats()
       self.player.print_experience()
 
-    elif action == 'xp':
+    elif command == 'xp':
       self.player.print_experience()
 
-    elif action == 'spend xp':
+    elif command == 'spend xp':
       self.player.spend_experience()
 
-    elif action == 'spend stat':
+    elif command == 'spend stat':
       self.player.spend_stat_points()
 
-    elif action == 'spend skill':
+    elif command == 'spend skill':
       self.player.spend_skill_points()
 
-    elif action.startswith("get"):
+    elif command.startswith("get"):
       pass
 
-    elif action.startswith("drop"):
+    elif command.startswith("drop"):
       pass
 
-    elif action.startswith("talk"):
+    elif command.startswith("talk"):
       pass
 
-    elif action.startswith("search"):
+    elif command.startswith("search"):
       pass
 
-    elif action.startswith("look"):
+    elif command.startswith("look"):
       pass
 
     else:
       print("Invalid command, please try again.")
 
-
-  def process_command(self):
-    if self.command in self.commands:
-      pass
-
-  def build_command_list(self):
-    return {
-        'n': self.map_matrix.move('north'),
-        'north': self.map_matrix.move('north'),
-        'e': self.map_matrix.move('east'),
-        'east': self.map_matrix.move('east'),
-        'w': self.map_matrix.move('west'),
-        'west': self.map_matrix.move('west'),
-        's': self.map_matrix.move('south'),
-        'south': self.map_matrix.move('south'),
-        'l': print(self.current_room.display()),
-        'look': print(self.current_room.display()),
-        'stats': '',
-
-      }
 
