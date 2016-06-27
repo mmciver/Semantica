@@ -10,31 +10,10 @@ class Geography(object):
     self.current_room = self.geo[95050]
 
   def initialize_geo(self):
-    to_build = [95050]
     rooms = {
         95050: room.Room(95050)
         }
     # need to generate the entire map on initialize, a recursive option should work, just have to pass back the rooms to add to the geography
-    while len(to_build) > 0:
-      print("")
-      print(to_build)
-      next_id = to_build[0]
-      if next_id in rooms:
-        print("%s already made" % next_id)
-        to_build.remove(next_id)
-        continue
-
-      print("making %s" % next_id)
-      rooms[next_id] = room.Room(next_id)
-      to_build.remove(next_id)
-      adjacent = rooms[next_id].get_adjacent_ids
-      print("  which has adjacent ids of %s" % adjacent)
-      for a in adjacent:
-        if a in to_build:
-          pass
-        else:
-          to_build += a
-
     return rooms
 
   def get_current_room(self):

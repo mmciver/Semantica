@@ -5,7 +5,6 @@ class Room(object):
 
   def __init__(self, room_id):
     self.room_id = room_id
-    self.coordinates = [int(str(room_id)[1:2]), int(str(room_id)[3:4])]
     self.description = self.get_description()
     self.creature = self.get_creature()
     self.exits = self.make_exits('start')
@@ -45,23 +44,8 @@ class Room(object):
         'west': -1
         }
 
-    #north
-    if path_from
-
-
-#iterate each direction
-#if there is a room in the direction and it also has an exit in this direction, make the exit and link (covers progression)
-#if the coordinates would result in a number less than 0 or greater than 99, don't make the exit
-#if I want 'pathing' with a greater chance to continue in a given direction of motion, then I have to check the above points
-#against all directions first before randomizing the remaining directions.
-#better idea .. from the 'start' pick a type of room: open, path, enclosed, and that sets the randomization criteria
-
-
-
     for e in exits:
       print(e)
-      if int(str(self.room_id)[1:2]) 
-
       jumblefluff += 1
     #north
 
