@@ -1,4 +1,5 @@
 from random import randint
+import random
 
 class Room(object):
 
@@ -8,39 +9,56 @@ class Room(object):
     self.exits = self.get_exits()
     self.walls = self.get_walls()
 
+  def display(self):
+    print(self.description)
+    print(self.creature)
+    print(self.display_exits())
+    return 1
+
   def get_description(self):
-    return "<generic room description>"
+    return "generic description"
 
   def get_exits(self):
-    possible = [round(random.random()), round(random.random()), round(random.random()), round(random.random())]
+    possible = [round(randint(0,1)), round(randint(0,1)), round(randint(0,1)), round(randint(0,1))]
+
     while sum(list(possible)) < 1:
-      possible = [round(random.random()), round(random.random()), round(random.random()), round(random.random())]
+      possible = [round(randint(0,1)), round(randint(0,1)), round(randint(0,1)), round(randint(0,1))]
+
     exits = {
-        'N': possible[0],
-        'S': possible[1],
-        'E': possible[2],
-        'W': possible[3]
+        'North': possible[0],
+        'South': possible[1],
+        'East': possible[2],
+        'West': possible[3]
         }
     return exits
 
+  def display_exits(self):
+    exits = []
+    for e in self.exits:
+      if self.exits[e] == 1:
+        exits.append(e)
+    return "You may go " + ", ".join(exits)
+
+
   def get_walls(self):
     walls = {
-        'N': 0,
-        'S': 0,
-        'E': 0,
-        'W': 0
+        'North': 0,
+        'South': 0,
+        'East': 0,
+        'West': 0
         }
-    if self.exits['N'] == 0:
-      walls['N'] = 1
 
-    if self.exits['S'] == 0:
-      walls['S'] = 1
+    if self.exits['North'] == 0:
+      walls['North'] = 1
 
-    if self.exits['E'] == 0:
-      walls['E'] = 1
+    if self.exits['South'] == 0:
+      walls['South'] = 1
 
-    if self.exits['W'] == 0:
-      walls['W'] = 1
+    if self.exits['East'] == 0:
+      walls['East'] = 1
+
+    if self.exits['West'] == 0:
+      walls['West'] = 1
 
     return walls
 
@@ -48,5 +66,4 @@ class Room(object):
     moods = ['angry', 'sad', 'happy', 'disappointed', 'depressed']
     nouns = ['bear', 'lion', 'boy', 'girl', 'man', 'woman']
     return("There is a %s here that is very %s" % (random.choice(nouns), random.choice(moods)))
-
 

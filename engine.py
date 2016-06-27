@@ -4,15 +4,19 @@ import player
 class Engine(object):
 
   def __init__(self):
-    self.geography = geography.Geography()
     self.player = player.Player()
+    self.map_matrix = geography.Geography()
+    self.current_room = self.map_matrix.geo['00000000']
+    self.commands = self.build_command_list()
     self.command_loop()
 
   def command_loop(self):
     command = ""
     while command != "quit":
+      print(self.current_room.display())
       command = input("\n> ").lower()
-      self.take_action(command)
+      self.process_command()
+      #self.take_action(command)
     exit()
 
   def take_action(self, action):
@@ -60,3 +64,25 @@ class Engine(object):
 
     else:
       print("Invalid command, please try again.")
+
+
+  def process_command(self):
+    if self.command in self.commands:
+      pass
+
+  def build_command_list(self):
+    return {
+        'n': self.map_matrix.move('north'),
+        'north': self.map_matrix.move('north'),
+        'e': self.map_matrix.move('east'),
+        'east': self.map_matrix.move('east'),
+        'w': self.map_matrix.move('west'),
+        'west': self.map_matrix.move('west'),
+        's': self.map_matrix.move('south'),
+        'south': self.map_matrix.move('south'),
+        'l': print(self.current_room.display()),
+        'look': print(self.current_room.display()),
+        'stats': '',
+
+      }
+

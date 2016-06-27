@@ -6,11 +6,16 @@ class Geography(object):
 
   def __init__(self):
     self.books = self.get_books()
+    self.geo = self.initialize_geo()
+    self.current_room = self.geo['00000000']
 
   def initialize_map(self):
     rooms = {
         '00000000': room.Room()
         }
+
+  def current_room(self):
+    return self.current_room
 
   def get_books(self):
     print("Getting books...")
