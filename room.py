@@ -3,12 +3,13 @@ import random
 
 class Room(object):
 
-  def __init__(self, room_id):
+  def __init__(self, room_id, type_of, belongs_to):
     self.room_id = room_id
-    self.coordinates = [int(str(room_id)[1:2]), int(str(room_id)[3:4])]
+    self.room_type = type_of
+    self.room_parent = belongs_to
     self.description = self.get_description()
     self.creature = self.get_creature()
-    self.exits = self.make_exits('start')
+    #self.exits = self.make_exits('start')
     #self.walls = self.get_walls()
 
   def display(self):
@@ -22,8 +23,14 @@ class Room(object):
   def get_id(self):
     return self.room_id
 
+  def get_type(self):
+    return self.room_type
+
+  def get_parent(self):
+    return self.room_parent
+
   def get_description(self):
-    return "generic description"
+    return self.get_parent()
 
   def adjacent(self, direction):
     return self.exits[direction]
@@ -45,9 +52,6 @@ class Room(object):
         'west': -1
         }
 
-    #north
-    if path_from
-
 
 #iterate each direction
 #if there is a room in the direction and it also has an exit in this direction, make the exit and link (covers progression)
@@ -60,9 +64,6 @@ class Room(object):
 
     for e in exits:
       print(e)
-      if int(str(self.room_id)[1:2]) 
-
-      jumblefluff += 1
     #north
 
     if path_from == 'south':
@@ -83,6 +84,7 @@ class Room(object):
 
 
   def display_exits(self):
+    return "exits not yet built"
     exits = []
     for e in self.exits:
       exits.append(e)

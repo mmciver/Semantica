@@ -6,7 +6,7 @@ class Engine(object):
   def __init__(self):
     #self.player = player.Player()
     self.map_matrix = geography.Geography()
-    self.current_room = self.map_matrix.geo[95050]
+    self.current_room = self.map_matrix.get_current()
     self.command_loop()
 
   def command_loop(self):
