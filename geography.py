@@ -13,6 +13,7 @@ class Geography(object):
     self.roads = {}
     self.paths = {}
     self.initialize_geo()
+    self.build_exits()
     self.current = self.all_rooms[random.choice(list(self.all_rooms.keys()))]
 
   def initialize_geo(self):
@@ -25,19 +26,16 @@ class Geography(object):
     while num_areas > 0:
       self.build_area()
       num_areas -= 1
-    print("Built %s Areas" % len(self.areas) )
 
     print("Building %s Houses..." % num_houses)
     while num_houses > 0:
       self.build_house()
       num_houses -= 1
-    print("Built %s Houses" % len(self.houses) )
 
     print("Building %s Roads..." % num_roads)
     while num_roads > 0:
       self.build_road()
       num_roads -= 1
-    print("Built %s Roads" % len(self.roads) )
 
     while num_paths > 0:
       #self.build_path()
@@ -50,8 +48,8 @@ class Geography(object):
     elif type(coords) is str:
       c = coords.split()
       return {
-          'x': c[0],
-          'y': c[1]
+          'x': int(c[0]),
+          'y': int(c[1])
           }
 
   def build_area(self):
@@ -59,7 +57,6 @@ class Geography(object):
     n = random.choice(names)
     while n in self.areas:
       n = random.choice(names)
-    print(" > %s" % n)
     self.areas[n] = {}
     area_xr = random.randint(4,7)
     area_yr = random.randint(4,7)
@@ -82,14 +79,13 @@ class Geography(object):
           self.areas[n][c] = r
         y += 1
       x += 1
-    print("There are %s total rooms" % len(self.all_rooms) )
+    print("  > %s has been built with %s rooms" % (n, len(self.areas[n]) ) )
 
   def build_house(self):
     names = ['Weatherby', 'Hill House', 'Northshire Cottage', 'Donnovar Manor', 'Trillhelm', "Joe's Shack", 'An abandoned mill', 'Greyview', 'Elsinor Cottage', 'Overgrown ruins', 'A store house', 'A workshop', 'A barn', 'A house', 'A cottage']
     n = random.choice(names)
     while n in self.areas:
       n = random.choice(names)
-    print(" > %s" % n)
     self.houses[n] = {}
     area_xr = random.randint(2,3)
     area_yr = random.randint(2,3)
@@ -114,14 +110,13 @@ class Geography(object):
           self.houses[n][c] = r
         y += 1
       x += 1
-    print("There are %s total rooms" % len(self.all_rooms) )
+    print("  > %s has been built with %s rooms" % (n, len(self.houses[n]) ) )
 
   def build_road(self):
     names = ['The London Road', 'A well kept road', 'The North Road']
     n = random.choice(names)
     while n in self.areas:
       n = random.choice(names)
-    print(" > %s" % n)
     self.roads[n] = {}
     route = random.randint(1,4)
     if route == 1: #from south to north
@@ -129,7 +124,7 @@ class Geography(object):
       y = -99
       ndir = list('nnnnnnwe')
     elif route == 2: #from east to west
-      x = -99
+      x = 99
       y = self.r()
       ndir = list('wwwwwwns')
     elif route == 3: #from north to south
@@ -137,7 +132,7 @@ class Geography(object):
       y = 99
       ndir = list('ssssssew')
     elif route == 4: #from west to east
-      x = 99
+      x = -99
       y = self.r()
       ndir = list('eeeeeens')
 
@@ -164,17 +159,43 @@ class Geography(object):
         x -= 1
 
       l = nx
-    print("There are %s total rooms" % len(self.all_rooms) )
-
-
-  def r(self):
-    return random.randint(0, 200) - 100
+    print("  > %s has been built with %s rooms" % (n, len(self.roads[n]) ) )
 
   def build_path(self):
     pass
 
+  def r(self):
+    return random.randint(0, 200) - 100
+
   def get_current(self):
     return self.current
+
+  def build_exits(self):
+    for r in self.all_rooms:
+      print(r)
+      c = self.coord(r)
+      print(c)
+      check = [
+          "%s %s" % ( c['x'] += 1, c['y'] += 1 ),
+          "%s %s" % ( c['x'] += 1, c['y'] += 0 ),
+          "%s %s" % ( c['x'] += 1, c['y'] -= 1 ),
+
+          "%s %s" % ( c['x'] += 0, c['y'] += 1 ),
+          "%s %s" % ( c['x'] += 0, c['y'] -= 1 ),
+
+          "%s %s" % ( c['x'] -= 1, c['y'] += 1 ),
+          "%s %s" % ( c['x'] -= 1, c['y'] += 0 ),
+          "%s %s" % ( c['x'] -= 1, c['y'] -= 1 ),
+          ]
+      for q in check:
+        if q in self.all_rooms:
+          self.all_rooms[r].add_exit(q, self.all_rooms[q].get_name)
+
+      print(self.all_rooms[r].get_exits()
+      exit()
+      pass
+    pass
+
 
   def move(self, direction, from_id):
     print(self.current_room.exits)

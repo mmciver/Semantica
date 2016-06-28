@@ -7,10 +7,10 @@ class Room(object):
     self.room_id = room_id
     self.room_type = type_of
     self.room_parent = belongs_to
+    self.name = self.get_name()
     self.description = self.get_description()
     self.creature = self.get_creature()
-    #self.exits = self.make_exits('start')
-    #self.walls = self.get_walls()
+    self.exits = {}
 
   def display(self):
     print("\n\n--------------")
@@ -30,93 +30,21 @@ class Room(object):
     return self.room_parent
 
   def get_description(self):
+    return self.parent
+
+  def get_name(self):
     return self.get_parent()
 
-  def adjacent(self, direction):
-    return self.exits[direction]
+  def add_exit(self, room_id, room_name):
+    self.exits[room_id] = room_name
+    pass
 
-  def get_adjacent_ids(self):
-    return self.exits.keys()
-
-
-  def make_exits(self, path_from):
-    possible = [round(randint(0,1)), round(randint(0,1)), round(randint(0,1)), round(randint(0,1))]
-
-    while sum(list(possible)) < 1:
-      possible = [round(randint(0,1)), round(randint(0,1)), round(randint(0,1)), round(randint(0,1))]
-
-    exits = {
-        'north': -1,
-        'east': -1,
-        'south': -1,
-        'west': -1
-        }
-
-
-#iterate each direction
-#if there is a room in the direction and it also has an exit in this direction, make the exit and link (covers progression)
-#if the coordinates would result in a number less than 0 or greater than 99, don't make the exit
-#if I want 'pathing' with a greater chance to continue in a given direction of motion, then I have to check the above points
-#against all directions first before randomizing the remaining directions.
-#better idea .. from the 'start' pick a type of room: open, path, enclosed, and that sets the randomization criteria
-
-
-
-    for e in exits:
-      print(e)
-    #north
-
-    if path_from == 'south':
-      exits['north'] = self.room_id + 100
-
-    if path_from == 'west':
-      exits['east'] = self.room_id + 1
-
-    if path_from == 'north':
-      exits['south'] = self.room_id - 100
-
-    if path_from == 'east':
-      exits['west'] = self.room_id - 1
-
-
-
-    return exits
 
 
   def display_exits(self):
-    return "exits not yet built"
-    exits = []
     for e in self.exits:
-      exits.append(e)
-    return "You may go " + ", ".join(exits)
+      print("")
 
-  def exits(self):
+  def get_exits(self):
     return self.exits
-
-  def get_walls(self):
-    walls = {
-        'North': 0,
-        'South': 0,
-        'East': 0,
-        'West': 0
-        }
-
-    if self.exits['North'] == 0:
-      walls['North'] = 1
-
-    if self.exits['South'] == 0:
-      walls['South'] = 1
-
-    if self.exits['East'] == 0:
-      walls['East'] = 1
-
-    if self.exits['West'] == 0:
-      walls['West'] = 1
-
-    return walls
-
-  def get_creature(self):
-    moods = ['angry', 'sad', 'happy', 'disappointed', 'depressed']
-    nouns = ['bear', 'lion', 'boy', 'girl', 'man', 'woman']
-    return("There is a %s here that is very %s" % (random.choice(nouns), random.choice(moods)))
 
