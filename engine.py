@@ -12,7 +12,9 @@ class Engine(object):
   def command_loop(self):
     command = ""
     while command != "quit":
-      print(self.current_room.display())
+      print("\n")
+      self.map_matrix.display_map(self.current_room.get_id())
+      self.current_room.display()
       command = input("\n> ").lower()
       self.process_command(command)
       #self.take_action(command)
@@ -28,8 +30,12 @@ class Engine(object):
         command = 'south'
       elif command == 'w':
         command = 'west'
-      self.map_matrix.move(command)
-      self.current_room = self.map_matrix.get_current_room()
+      self.map_matrix.move(command, self.current_room.get_id())
+      self.current_room = self.map_matrix.get_current()
+
+    elif command == 'jump':
+      self.map_matrix.random_room()
+      self.current_room = self.map_matrix.get_current()
 
     elif command == 'search':
       pass

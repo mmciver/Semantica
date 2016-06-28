@@ -14,7 +14,7 @@ class Geography(object):
     self.paths = {}
     self.initialize_geo()
     self.build_exits()
-    self.current = self.all_rooms[random.choice(list(self.all_rooms.keys()))]
+    self.random_room()
 
   def initialize_geo(self):
     num_areas = random.randint(1,5)
@@ -41,6 +41,8 @@ class Geography(object):
       #self.build_path()
       num_paths -= 1
 
+  def random_room(self):
+    self.current = self.all_rooms[random.choice(list(self.all_rooms.keys()))]
 
   def coord(self, coords):
     if type(coords) is dict:
@@ -78,6 +80,7 @@ class Geography(object):
           self.all_rooms[c] = r
           self.areas[n][c] = r
         y += 1
+      y = area_sl
       x += 1
     print("  > %s has been built with %s rooms" % (n, len(self.areas[n]) ) )
 
@@ -87,8 +90,8 @@ class Geography(object):
     while n in self.areas:
       n = random.choice(names)
     self.houses[n] = {}
-    area_xr = random.randint(2,3)
-    area_yr = random.randint(2,3)
+    area_xr = random.randint(1,2)
+    area_yr = random.randint(1,2)
     area_xc = self.r()
     area_yc = self.r()
 
@@ -109,6 +112,7 @@ class Geography(object):
           self.all_rooms[c] = r
           self.houses[n][c] = r
         y += 1
+      y = area_sl
       x += 1
     print("  > %s has been built with %s rooms" % (n, len(self.houses[n]) ) )
 
@@ -171,45 +175,64 @@ class Geography(object):
     return self.current
 
   def build_exits(self):
+    print("Building Exits...")
     for r in self.all_rooms:
-      print(r)
       c = self.coord(r)
-      print(c)
       check = [
-          "%s %s" % ( c['x'] += 1, c['y'] += 1 ),
-          "%s %s" % ( c['x'] += 1, c['y'] += 0 ),
-          "%s %s" % ( c['x'] += 1, c['y'] -= 1 ),
-
-          "%s %s" % ( c['x'] += 0, c['y'] += 1 ),
-          "%s %s" % ( c['x'] += 0, c['y'] -= 1 ),
-
-          "%s %s" % ( c['x'] -= 1, c['y'] += 1 ),
-          "%s %s" % ( c['x'] -= 1, c['y'] += 0 ),
-          "%s %s" % ( c['x'] -= 1, c['y'] -= 1 ),
+          ['East', "%s %s" % ( c['x'] + 1, c['y'] + 0 )],
+          ['North', "%s %s" % ( c['x'] + 0, c['y'] + 1 )],
+          ['South', "%s %s" % ( c['x'] + 0, c['y'] - 1 )],
+          ['West', "%s %s" % ( c['x'] - 1, c['y'] + 0 )],
           ]
       for q in check:
-        if q in self.all_rooms:
-          self.all_rooms[r].add_exit(q, self.all_rooms[q].get_name)
+        if q[1] in self.all_rooms:
+          i = q[1]
+          d = q[0]
+          n = self.all_rooms[q[1]].get_name()
+          self.all_rooms[r].add_exit(i, d, n)
 
-      print(self.all_rooms[r].get_exits()
-      exit()
-      pass
-    pass
+  def display_map(self, room_id):
+    c = self.coord(room_id)
+    cx = c['x']
+    cy = c['y']
 
+    mx = cx - 5
+    my = cy + 5
+
+    while my > cy - 6:
+      r = []
+      while mx < cx + 6:
+        if mx == cx and my == cy:
+          r.append("@")
+        else:
+          r.append(self.get_map_icon("%s %s" % (mx, my)))
+        mx += 1
+      print("".join(r))
+      mx = cx -5
+      my -= 1
+
+  def get_map_icon(self, room_id):
+    if room_id in self.all_rooms:
+      if self.all_rooms[room_id].get_type() == 'house':
+        return "#"
+      elif self.all_rooms[room_id].get_type() == 'road':
+        return "-"
+      elif self.all_rooms[room_id].get_type() == 'area':
+        return "+"
+    else:
+      return " "
 
   def move(self, direction, from_id):
-    print(self.current_room.exits)
-    if direction in self.current_room.exits:
-      print("You move to the %s" % direction)
-      room_id = self.current_room.adjacent(direction)
-      print("The room id you are moving to is %s" % room_id)
-      self.geo[room_id] = room.Room(room_id, len(self.geo))
-      print("The room exists as: %s" % self.geo[room_id])
-      self.current_room = self.geo[room_id]
-      print("There will be exits: \n >>  %s" % self.current_room.display_exits())
-      print("There is a current geography of %s" % self.geo)
-      print("moving to %s vs current of %s" % (self.geo[room_id].get_id(), self.current_room.get_id()))
-
+    c = self.coord(from_id)
+    possible = {
+        'north': "%s %s" % ( c['x'] + 0, c['y'] + 1 ),
+        'south': "%s %s" % ( c['x'] + 0, c['y'] - 1 ),
+        'east': "%s %s" % ( c['x'] + 1, c['y'] + 0 ),
+        'west': "%s %s" % ( c['x'] - 1, c['y'] + 0 ),
+        }
+    if possible[direction] in self.all_rooms:
+      print("moving %s" % direction)
+      self.current = self.all_rooms[possible[direction]]
     else:
       print("You may not move to the %s" % direction)
 
