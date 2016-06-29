@@ -1,4 +1,5 @@
 import random
+import math
 import room
 import urllib.request
 from bs4 import BeautifulSoup
@@ -11,6 +12,7 @@ class Geography(object):
     self.areas = {}
     self.houses = {}
     self.roads = {}
+    self.road_coord_list = []
     self.paths = {}
     self.initialize_geo()
     self.build_exits()
@@ -22,20 +24,20 @@ class Geography(object):
     num_paths = random.randint(5,10)
     num_roads = random.randint(2,3)
 
-    print("Building %s Areas..." % num_areas)
-    while num_areas > 0:
+    print("Building %s Roads..." % num_roads)
+    while num_roads > 0:
+      self.build_road()
+      num_roads -= 1
+
+    print("Building Areas...")
+    while len(self.all_rooms) < 4000:
       self.build_area()
-      num_areas -= 1
 
     print("Building %s Houses..." % num_houses)
     while num_houses > 0:
       self.build_house()
       num_houses -= 1
 
-    print("Building %s Roads..." % num_roads)
-    while num_roads > 0:
-      self.build_road()
-      num_roads -= 1
 
     while num_paths > 0:
       #self.build_path()
@@ -44,45 +46,59 @@ class Geography(object):
   def random_room(self):
     self.current = self.all_rooms[random.choice(list(self.all_rooms.keys()))]
 
-  def coord(self, coords):
-    if type(coords) is dict:
-      return ("%s %s" % (coords['x'], coords['y']))
-    elif type(coords) is str:
-      c = coords.split()
-      return {
-          'x': int(c[0]),
-          'y': int(c[1])
-          }
+  def closest_road_coord(self, c):
+    closest_id = ""
+    closest_dist = 999
+    ox = c[0]
+    oy = c[1]
+    for z in self.road_coord_list:
+      qx = z[0]
+      qy = z[1]
+      d = math.hypot(qx-ox, qy-oy)
+      if d < closest_dist:
+        closest_dist = d
+        closest_id = z
+    return [closest_dist, closest_id]
 
   def build_area(self):
     names = ['A freshly plowed field', 'A corn field', 'A wheat field', 'A shady grove', 'A sunny meadow']
-    n = random.choice(names)
-    while n in self.areas:
-      n = random.choice(names)
+    n = "%s %s" % (random.choice(names), len(self.areas))
     self.areas[n] = {}
-    area_xr = random.randint(4,7)
-    area_yr = random.randint(4,7)
-    area_xc = self.r()
-    area_yc = self.r()
+    xr = random.randint(4,7)
+    yr = random.randint(4,7)
+    xc = self.r()
+    yc = self.r()
 
-    area_nl = area_xc + area_xr
-    area_sl = area_xc - area_xr
-    area_el = area_yc + area_yr
-    area_wl = area_yc - area_yr
+    close = self.closest_road_coord((xc, yc))
+    while close[0] < 20:
+      xc = self.r()
+      yc = self.r()
+      close = self.closest_road_coord((xc, yc))
 
-    x = area_wl
-    y = area_sl
-    while x <= area_el:
-      while y <= area_nl:
-        c = ("%s %s" % (x, y) )
-        if c not in self.all_rooms:
+    nl = xc + xr
+    sl = xc - xr
+    el = yc + yr
+    wl = yc - yr
+
+    x = wl
+    y = sl
+    while x <= el:
+      while y <= nl:
+        c = (x, y)
+        if c in self.all_rooms:
+          if self.all_rooms[c].get_type() == 'path':
+            r = room.Room( c, 'area', n )
+            self.all_rooms[c] = r
+            self.areas[n][c] = r
+        else:
           r = room.Room( c, 'area', n )
           self.all_rooms[c] = r
           self.areas[n][c] = r
         y += 1
-      y = area_sl
+      y = sl
       x += 1
     print("  > %s has been built with %s rooms" % (n, len(self.areas[n]) ) )
+    self.build_path((xc, yc), close[1], "Path to %s" % n)
 
   def build_house(self):
     names = ['Weatherby', 'Hill House', 'Northshire Cottage', 'Donnovar Manor', 'Trillhelm', "Joe's Shack", 'An abandoned mill', 'Greyview', 'Elsinor Cottage', 'Overgrown ruins', 'A store house', 'A workshop', 'A barn', 'A house', 'A cottage']
@@ -90,64 +106,69 @@ class Geography(object):
     while n in self.areas:
       n = random.choice(names)
     self.houses[n] = {}
-    area_xr = random.randint(1,2)
-    area_yr = random.randint(1,2)
-    area_xc = self.r()
-    area_yc = self.r()
+    xr = random.randint(1,2)
+    yr = random.randint(1,2)
+    xc = self.r()
+    yc = self.r()
 
-    area_nl = area_xc + area_xr
-    area_sl = area_xc - area_xr
-    area_el = area_yc + area_yr
-    area_wl = area_yc - area_yr
+    close = self.closest_road_coord((xc, yc))
+    while close[0] < 9:
+      xc = self.r()
+      yc = self.r()
+      close = self.closest_road_coord((xc, yc))
 
-    start = self.coord("%s %s" % (area_sl, area_wl) )
+    nl = xc + xr
+    sl = xc - xr
+    el = yc + yr
+    wl = yc - yr
 
-    x = area_wl
-    y = area_sl
-    while x <= area_el:
-      while y <= area_nl:
-        c = ("%s %s" % (x, y) )
-        if c not in self.all_rooms:
-          r = room.Room( c, 'house', n )
-          self.all_rooms[c] = r
-          self.houses[n][c] = r
+    x = wl
+    y = sl
+    while x <= el:
+      while y <= nl:
+        c = (x, y)
+        r = room.Room( c, 'house', n )
+        self.all_rooms[c] = r
+        self.houses[n][c] = r
         y += 1
-      y = area_sl
+      y = sl
       x += 1
     print("  > %s has been built with %s rooms" % (n, len(self.houses[n]) ) )
+    self.build_path((xc, yc), close[1], "Path to %s" % n)
 
   def build_road(self):
     names = ['The London Road', 'A well kept road', 'The North Road']
     n = random.choice(names)
-    while n in self.areas:
+    while n in self.roads:
       n = random.choice(names)
     self.roads[n] = {}
     route = random.randint(1,4)
     if route == 1: #from south to north
       x = self.r()
       y = -99
-      ndir = list('nnnnnnwe')
+      ndir = list('nnnnnnnnnwe')
     elif route == 2: #from east to west
       x = 99
       y = self.r()
-      ndir = list('wwwwwwns')
+      ndir = list('wwwwwwwwwns')
     elif route == 3: #from north to south
       x = self.r()
       y = 99
-      ndir = list('ssssssew')
+      ndir = list('sssssssssew')
     elif route == 4: #from west to east
       x = -99
       y = self.r()
-      ndir = list('eeeeeens')
+      ndir = list('eeeeeeeeens')
 
     l = ""
     op = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
     while x < 100 and x > -100 and y < 100 and y > -100:
-      c = ("%s %s" % (x, y) )
+      c = (x, y)
       if c not in self.all_rooms:
         r = room.Room( c, 'road', n )
         self.all_rooms[c] = r
         self.roads[n][c] = r
+        self.road_coord_list.append(c)
 
       nx = random.choice(ndir)
       while op[nx] == l:
@@ -165,8 +186,33 @@ class Geography(object):
       l = nx
     print("  > %s has been built with %s rooms" % (n, len(self.roads[n]) ) )
 
-  def build_path(self):
-    pass
+  def build_path(self, s, e, n):
+    c = s
+    steps = []
+
+    #destination minus current
+    v = [-1, -1] #default heads west and south
+    if s[0] < e[0]: #head east
+      v[0] = 1
+
+    if s[1] < e[1]: #head north
+      v[1] = 1
+
+    xd = (v[0], 0)
+    yd = (0, v[1])
+    xs = [xd] * abs(e[0] - s[0])
+    ys = [yd] * abs(e[1] - s[1])
+    steps = xs + ys
+    random.shuffle(steps)
+
+    while len(steps) > 0:
+      c = (c[0] + steps[0][0], c[1] + steps[0][1])
+      if c not in self.all_rooms:
+        r = room.Room( c, 'path', n )
+        self.all_rooms[c] = r
+        self.road_coord_list.append(c)
+      steps.pop(0)
+
 
   def r(self):
     return random.randint(0, 200) - 100
@@ -176,25 +222,23 @@ class Geography(object):
 
   def build_exits(self):
     print("Building Exits...")
-    for r in self.all_rooms:
-      c = self.coord(r)
+    for c in self.all_rooms:
       check = [
-          ['East', "%s %s" % ( c['x'] + 1, c['y'] + 0 )],
-          ['North', "%s %s" % ( c['x'] + 0, c['y'] + 1 )],
-          ['South', "%s %s" % ( c['x'] + 0, c['y'] - 1 )],
-          ['West', "%s %s" % ( c['x'] - 1, c['y'] + 0 )],
+          ['East', ( c[0] + 1, c[1] + 0 )],
+          ['North', ( c[0] + 0, c[1] + 1 )],
+          ['South', ( c[0] + 0, c[1] - 1 )],
+          ['West', ( c[0] - 1, c[1] + 0 )],
           ]
       for q in check:
         if q[1] in self.all_rooms:
           i = q[1]
           d = q[0]
           n = self.all_rooms[q[1]].get_name()
-          self.all_rooms[r].add_exit(i, d, n)
+          self.all_rooms[c].add_exit(i, d, n)
 
   def display_map(self, room_id):
-    c = self.coord(room_id)
-    cx = c['x']
-    cy = c['y']
+    cx = room_id[0]
+    cy = room_id[1]
 
     mx = cx - 5
     my = cy + 5
@@ -205,7 +249,7 @@ class Geography(object):
         if mx == cx and my == cy:
           r.append("@")
         else:
-          r.append(self.get_map_icon("%s %s" % (mx, my)))
+          r.append(self.get_map_icon((mx, my)))
         mx += 1
       print("".join(r))
       mx = cx -5
@@ -216,19 +260,23 @@ class Geography(object):
       if self.all_rooms[room_id].get_type() == 'house':
         return "#"
       elif self.all_rooms[room_id].get_type() == 'road':
-        return "-"
+        return "*"
       elif self.all_rooms[room_id].get_type() == 'area':
         return "+"
+      elif self.all_rooms[room_id].get_type() == 'path':
+        return "."
+      else:
+        print("\n\nError: Room Type not found: %s" % self.all_rooms[room_id].get_type())
+        exit()
     else:
       return " "
 
-  def move(self, direction, from_id):
-    c = self.coord(from_id)
+  def move(self, direction, c):
     possible = {
-        'north': "%s %s" % ( c['x'] + 0, c['y'] + 1 ),
-        'south': "%s %s" % ( c['x'] + 0, c['y'] - 1 ),
-        'east': "%s %s" % ( c['x'] + 1, c['y'] + 0 ),
-        'west': "%s %s" % ( c['x'] - 1, c['y'] + 0 ),
+        'north': ( c[0] + 0, c[1] + 1 ),
+        'south': ( c[0] + 0, c[1] - 1 ),
+        'east': ( c[0] + 1, c[1] + 0 ),
+        'west': ( c[0] - 1, c[1] + 0 ),
         }
     if possible[direction] in self.all_rooms:
       print("moving %s" % direction)
