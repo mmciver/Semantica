@@ -1,3 +1,4 @@
+import os
 import random
 import math
 import room
@@ -75,15 +76,17 @@ class Geography(object):
       yc = self.r()
       close = self.closest_road_coord((xc, yc))
 
-    nl = xc + xr
-    sl = xc - xr
-    el = yc + yr
-    wl = yc - yr
+    center = (xc, yc)
+
+    nl = yc + yr
+    sl = yc - yr
+    el = xc + xr
+    wl = xc - xr
 
     x = wl
-    y = sl
-    while x <= el:
-      while y <= nl:
+    y = nl
+    while y >= sl:
+      while x <= el:
         c = (x, y)
         if c in self.all_rooms:
           if self.all_rooms[c].get_type() == 'path':
@@ -94,9 +97,9 @@ class Geography(object):
           r = room.Room( c, 'area', n )
           self.all_rooms[c] = r
           self.areas[n][c] = r
-        y += 1
-      y = sl
-      x += 1
+        x += 1
+      x = wl
+      y -= 1
     print("  > %s has been built with %s rooms" % (n, len(self.areas[n]) ) )
     self.build_path((xc, yc), close[1], "Path to %s" % n)
 
@@ -117,10 +120,10 @@ class Geography(object):
       yc = self.r()
       close = self.closest_road_coord((xc, yc))
 
-    nl = xc + xr
-    sl = xc - xr
-    el = yc + yr
-    wl = yc - yr
+    nl = yc + yr
+    sl = yc - yr
+    el = xc + xr
+    wl = xc - xr
 
     x = wl
     y = sl
@@ -164,6 +167,7 @@ class Geography(object):
     op = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
     while x < 100 and x > -100 and y < 100 and y > -100:
       c = (x, y)
+      self.display_map(c)
       if c not in self.all_rooms:
         r = room.Room( c, 'road', n )
         self.all_rooms[c] = r
@@ -207,6 +211,8 @@ class Geography(object):
 
     while len(steps) > 0:
       c = (c[0] + steps[0][0], c[1] + steps[0][1])
+      self.display_map(c)
+      print(n)
       if c not in self.all_rooms:
         r = room.Room( c, 'path', n )
         self.all_rooms[c] = r
@@ -237,22 +243,26 @@ class Geography(object):
           self.all_rooms[c].add_exit(i, d, n)
 
   def display_map(self, room_id):
+    os.system('cls')
+    print(room_id)
+    xsize = 80
+    ysize = 30
     cx = room_id[0]
     cy = room_id[1]
 
-    mx = cx - 5
-    my = cy + 5
+    mx = cx - xsize
+    my = cy + ysize
 
-    while my > cy - 6:
+    while my >= cy - ysize:
       r = []
-      while mx < cx + 6:
+      while mx <= cx + xsize:
         if mx == cx and my == cy:
           r.append("@")
         else:
           r.append(self.get_map_icon((mx, my)))
         mx += 1
       print("".join(r))
-      mx = cx -5
+      mx = cx - xsize
       my -= 1
 
   def get_map_icon(self, room_id):
