@@ -2,13 +2,13 @@ import os
 import random
 import math
 import room
-import urllib.request
-from bs4 import BeautifulSoup
+import content
 
 class Geography(object):
 
   def __init__(self):
-    self.books = self.get_books()
+    self.content = self.init_content()
+    exit()
     self.all_rooms = {}
     self.areas = {}
     self.houses = {}
@@ -167,7 +167,7 @@ class Geography(object):
     op = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
     while x < 100 and x > -100 and y < 100 and y > -100:
       c = (x, y)
-      self.display_map(c)
+      #self.display_map(c)
       if c not in self.all_rooms:
         r = room.Room( c, 'road', n )
         self.all_rooms[c] = r
@@ -211,8 +211,7 @@ class Geography(object):
 
     while len(steps) > 0:
       c = (c[0] + steps[0][0], c[1] + steps[0][1])
-      self.display_map(c)
-      print(n)
+      #self.display_map(c)
       if c not in self.all_rooms:
         r = room.Room( c, 'path', n )
         self.all_rooms[c] = r
@@ -294,18 +293,5 @@ class Geography(object):
     else:
       print("You may not move to the %s" % direction)
 
-  def get_books(self):
-    print("Getting books...")
-    books = []
-    url = "http://www.gutenberg.org/browse/scores/top"
-    with urllib.request.urlopen(url) as response:
-      page =response.read()
-      soup = BeautifulSoup(page, 'html.parser')
-
-      links = soup.find_all('a')
-      for link in links:
-        if "/ebooks/" in link.get("href"):
-          books.append(link.get("href"))
-        else:
-          continue
-
+  def init_content(self):
+    return content.BookReader()
